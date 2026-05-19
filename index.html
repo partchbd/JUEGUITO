@@ -2,18 +2,20 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>¡El Juego de la Viborita para el Lugue!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
+    <title>Catch My Heart ❤️</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         body {
-            background: #1a1a2e;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0b0914;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -23,303 +25,418 @@
             overflow: hidden;
         }
 
-        h1 {
-            margin-bottom: 10px;
-            font-size: 1.8rem;
-            color: #4ecca3;
-            text-shadow: 0 0 10px rgba(78, 204, 163, 0.3);
-        }
-
-        #score-board {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
         #game-container {
             position: relative;
-            background: #161623;
-            border: 4px solid #4ecca3;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+            height: 600px;
+            background: radial-gradient(circle at center, #1a153a 0%, #0b0914 100%);
+            border: 3px solid #ff416c;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 65, 108, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Marcador y textos */
+        #hud {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            z-index: 10;
+            background: rgba(11, 9, 20, 0.6);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(255, 65, 108, 0.2);
+        }
+
+        #score { color: #ff416c; text-shadow: 0 0 8px rgba(255, 65, 108, 0.5); }
+        #lives { color: #ff4b2b; }
+
+        #phrase-box {
+            position: absolute;
+            top: 75px;
+            left: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 10px 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.95rem;
+            font-style: italic;
+            color: #ffdeeb;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all 0.3s ease;
         }
 
         canvas {
+            flex-grow: 1;
             display: block;
+            background: transparent;
         }
 
-        #game-over-screen {
+        /* Pantallas superpuestas (Game Over / Victoria) */
+        .screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(22, 22, 35, 0.85);
+            background: rgba(11, 9, 20, 0.92);
+            backdrop-filter: blur(8px);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 6px;
+            padding: 30px;
+            text-align: center;
+            z-index: 20;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease;
         }
 
-        #game-over-screen.active {
+        .screen.active {
             opacity: 1;
             pointer-events: auto;
         }
 
-        #game-over-screen h2 {
-            color: #ff4a5a;
+        .screen h2 {
             font-size: 2rem;
             margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        button {
-            background: #4ecca3;
-            color: #1a1a2e;
+        #game-over-title { color: #ff4b2b; text-shadow: 0 0 10px rgba(255, 75, 43, 0.4); }
+        #win-title { color: #8e2de2; text-shadow: 0 0 15px rgba(142, 45, 226, 0.6); }
+
+        .screen p {
+            font-size: 1.05rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            color: #d1cde3;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 28px;
             font-size: 1rem;
             font-weight: bold;
-            border-radius: 5px;
+            border-radius: 25px;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        button:hover {
-            background: #3db892;
-            transform: scale(1.05);
+        .btn:active {
+            transform: scale(0.95);
         }
 
-        /* Controles para Celular */
-        #controls {
-            display: grid;
-            grid-template-columns: repeat(3, 60px);
-            grid-template-rows: repeat(3, 60px);
-            gap: 10px;
-            margin-top: 20px;
+        .btn-win {
+            background: linear-gradient(135deg, #4a00e0 0%, #8e2de2 100%);
+            box-shadow: 0 5px 15px rgba(142, 45, 226, 0.4);
         }
 
-        .btn-dir {
-            background: #232946;
-            color: #b8c1ec;
-            border: 2px solid #4ecca3;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            user-select: none;
+        /* Instrucciones iniciales flotantes */
+        #tap-start {
+            position: absolute;
+            bottom: 150px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.9rem;
+            animation: pulse 1.5s infinite;
+            pointer-events: none;
         }
 
-        .btn-dir:active {
-            background: #4ecca3;
-            color: #1a1a2e;
-        }
-
-        #up { grid-column: 2; grid-row: 1; }
-        #left { grid-column: 1; grid-row: 2; }
-        #right { grid-column: 3; grid-row: 2; }
-        #down { grid-column: 2; grid-row: 3; }
-
-        /* Ocultar controles en PC si tiene teclado, pero dejarlos visibles para pantallas táctiles */
-        @media (pointer: fine) {
-            #controls {
-                display: none; /* Se oculta si se detecta un mouse */
-            }
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
         }
     </style>
 </head>
 <body>
 
-    <h1>SNAKE - LUGUE EDITION</h1>
-    <div id="score-board">Puntos: <span id="score">0</span> | Máximo: <span id="high-score">0</span></div>
+    http://googleusercontent.com/image_generation_content/0
 
     <div id="game-container">
-        <canvas id="gameCanvas" width="340" height="340"></canvas>
-        <div id="game-over-screen" id="gameOverScreen">
-            <h2>¡Perdiste!</h2>
-            <button onclick="resetGame()">Jugar de Nuevo</button>
+        <div id="hud">
+            <div>Puntos: <span id="score">0</span>/100</div>
+            <div>Vidas: <span id="lives">❤️❤️❤️</span></div>
         </div>
-    </div>
 
-    <!-- Controles en pantalla para móviles -->
-    <div id="controls">
-        <div class="btn-dir" id="up">▲</div>
-        <div class="btn-dir" id="left">◀</div>
-        <div class="btn-dir" id="right">▶</div>
-        <div class="btn-dir" id="down">▼</div>
+        <div id="phrase-box">¡Atrapa los corazones antes de que caigan! 🚀</div>
+        
+        <div id="tap-start">Desliza o usa las flechas para moverte</div>
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="screen" id="game-over-screen">
+            <h2 id="game-over-title">¿Se te cayó mi corazón? 💔</h2>
+            <p id="game-over-text">Menos mal que en la vida real soy más terco/a que el juego. ¡Anda, inténtalo otra vez!</p>
+            <button class="btn" onclick="resetGame()">Recoger mi corazón 🩹</button>
+        </div>
+
+        <div class="screen" id="win-screen">
+            <h2 id="win-title">¡Nivel Completado! 🏆</h2>
+            <p>Atrapaste todos mis corazones... Bueno, la verdad es que ya los tenías desde antes de empezar a jugar. 😏<br><br>¿Qué dices si festejamos tu victoria saliendo por un helado o tomando algo?</p>
+            <button class="btn btn-win" onclick="aceptarPremio()">Reclamar Premio ❤️</button>
+        </div>
     </div>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
-        const scoreElement = document.getElementById("score");
-        const highScoreElement = document.getElementById("high-score");
+        const scoreElem = document.getElementById("score");
+        const livesElem = document.getElementById("lives");
+        const phraseBox = document.getElementById("phrase-box");
         const gameOverScreen = document.getElementById("game-over-screen");
+        const winScreen = document.getElementById("win-screen");
+        const tapStart = document.getElementById("tap-start");
 
-        // Configuración del tablero
-        const gridSize = 20;
-        const tileCount = canvas.width / gridSize;
+        // Ajustar tamaño del canvas internamente
+        canvas.width = 400;
+        canvas.height = 500;
 
-        // Estado del juego
-        let snake = [{x: 8, y: 8}];
-        let food = {x: 5, y: 5};
-        let dx = 1; // Dirección inicial en X (derecha)
-        let dy = 0; // Dirección inicial en Y
+        // Variables del juego
         let score = 0;
-        let highScore = localStorage.getItem("snakeHighScore") || 0;
-        let gameInterval;
-        let gameSpeed = 120; // Milisegundos por frame (más bajo = más rápido)
-        let changingDirection = false; // Evita que se suicide al presionar dos teclas rápido
+        let lives = 3;
+        let gameOver = false;
+        let gameStarted = false;
+        let hearts = [];
+        let particles = [];
+        let heartSpawnTimer = 0;
+        let speedMultiplier = 1;
 
-        highScoreElement.textContent = highScore;
+        // La barra / canasta del jugador
+        const basket = {
+            x: 160,
+            y: 440,
+            width: 80,
+            height: 15,
+            speed: 7,
+            color: "#ff416c"
+        };
 
-        // Iniciar bucle principal
-        function startGame() {
-            gameInterval = setInterval(main, gameSpeed);
-        }
+        // Lista de frases según vas sumando puntos
+        const phrases = {
+            0: "¡Qué reflejos! A ver si aguantas el ritmo... 😏",
+            20: "Cuidado, que si se te caen me duele a mí también. 😜",
+            40: "Oye... hablando en serio, qué lindo es volver a platicar contigo.",
+            60: "Me gustas más que romper el récord de este juego, ¿sabías?",
+            80: "¡Ya casi! Estás a nada de ganarte el premio mayor... 🚀"
+        };
 
-        function main() {
-            if (hasGameEnded()) {
-                gameOverScreen.classList.add("active");
-                clearInterval(gameInterval);
-                if (score > highScore) {
-                    highScore = score;
-                    localStorage.setItem("snakeHighScore", highScore);
-                    highScoreElement.textContent = highScore;
-                }
-                return;
-            }
+        const gameOverTexts = [
+            "Menos mal que en la vida real soy más terco/a que el juego. ¡Anda, inténtalo otra vez!",
+            "Casi, casi... Pero no te voy a dejar ir tan fácil. ¡A jugar de nuevo!",
+            "¿Te pusiste nervioso/a leyendo las frases? ¡Va otra oportunidad!"
+        ];
 
-            changingDirection = false;
-            clearCanvas();
-            drawFood();
-            moveSnake();
-            drawSnake();
-        }
+        // Controles de teclado
+        let rightPressed = false;
+        let leftPressed = false;
 
-        // Limpiar el tablero
-        function clearCanvas() {
-            ctx.fillStyle = "#161623";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-
-        // Dibujar la viborita
-        function drawSnake() {
-            snake.forEach((part, index) => {
-                // La cabeza es de un color un poco más claro
-                ctx.fillStyle = index === 0 ? "#64ffda" : "#4ecca3";
-                ctx.strokeStyle = "#161623";
-                ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize, gridSize);
-                ctx.strokeRect(part.x * gridSize, part.y * gridSize, gridSize, gridSize);
-            });
-        }
-
-        // Mover la viborita
-        function moveSnake() {
-            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
-            snake.unshift(head);
-
-            // Verificar si comió la manzana
-            if (head.x === food.x && head.y === food.y) {
-                score += 10;
-                scoreElement.textContent = score;
-                generateFood();
-            } else {
-                snake.pop(); // Si no comió, saca la cola para mantener el tamaño
-            }
-        }
-
-        // Generar comida en un lugar aleatorio
-        function generateFood() {
-            food.x = Math.floor(Math.random() * tileCount);
-            food.y = Math.floor(Math.random() * tileCount);
-
-            // Asegurar que la comida no aparezca encima de la serpiente
-            snake.forEach(part => {
-                if (part.x === food.x && part.y === food.y) {
-                    generateFood();
-                }
-            });
-        }
-
-        // Dibujar comida
-        function drawFood() {
-            ctx.fillStyle = "#ff4a5a";
-            ctx.beginPath();
-            ctx.arc((food.x * gridSize) + gridSize/2, (food.y * gridSize) + gridSize/2, gridSize/2 - 2, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        // Detectar colisiones
-        function hasGameEnded() {
-            // Colisión con paredes
-            if (snake[0].x < 0 || snake[0].x >= tileCount || snake[0].y < 0 || snake[0].y >= tileCount) {
-                return true;
-            }
-            // Colisión consigo misma
-            for (let i = 1; i < snake.length; i++) {
-                if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true;
-            }
-            return false;
-        }
-
-        // Cambiar dirección lógica
-        function changeDirection(newDx, newDy) {
-            if (changingDirection) return;
-            
-            // Evitar que gire 180 grados directamente sobre sí misma
-            const goingUp = dy === -1;
-            const goingDown = dy === 1;
-            const goingRight = dx === 1;
-            const goingLeft = dx === -1;
-
-            if (newDx === 1 && !goingLeft) { dx = 1; dy = 0; changingDirection = true; }
-            if (newDx === -1 && !goingRight) { dx = -1; dy = 0; changingDirection = true; }
-            if (newDy === 1 && !goingUp) { dx = 0; dy = 1; changingDirection = true; }
-            if (newDy === -1 && !goingDown) { dx = 0; dy = -1; changingDirection = true; }
-        }
-
-        // Escuchar Teclado (PC)
-        document.addEventListener("keydown", event => {
-            if (event.key === "ArrowUp" || event.key === "w") changeDirection(0, -1);
-            if (event.key === "ArrowDown" || event.key === "s") changeDirection(0, 1);
-            if (event.key === "ArrowLeft" || event.key === "a") changeDirection(-1, 0);
-            if (event.key === "ArrowRight" || event.key === "d") changeDirection(1, 0);
+        document.addEventListener("keydown", (e) => {
+            if(e.key === "ArrowRight" || e.key === "d") rightPressed = true;
+            if(e.key === "ArrowLeft" || e.key === "a") leftPressed = true;
+            if(!gameStarted) { gameStarted = true; tapStart.style.display = 'none'; }
         });
 
-        // Escuchar Botones en Pantalla (Móvil)
-        document.getElementById("up").addEventListener("touchstart", () => changeDirection(0, -1));
-        document.getElementById("down").addEventListener("touchstart", () => changeDirection(0, 1));
-        document.getElementById("left").addEventListener("touchstart", () => changeDirection(-1, 0));
-        document.getElementById("right").addEventListener("touchstart", () => changeDirection(1, 0));
-        
-        // Soporte para clics en vez de touch (por si acaso en PC prueban los botones)
-        document.getElementById("up").addEventListener("click", () => changeDirection(0, -1));
-        document.getElementById("down").addEventListener("click", () => changeDirection(0, 1));
-        document.getElementById("left").addEventListener("click", () => changeDirection(-1, 0));
-        document.getElementById("right").addEventListener("click", () => changeDirection(1, 0));
+        document.addEventListener("keyup", (e) => {
+            if(e.key === "ArrowRight" || e.key === "d") rightPressed = false;
+            if(e.key === "ArrowLeft" || e.key === "a") leftPressed = false;
+        });
 
-        // Reiniciar el juego
-        function resetGame() {
-            snake = [{x: 8, y: 8}];
-            generateFood();
-            dx = 1;
-            dy = 0;
-            score = 0;
-            scoreElement.textContent = score;
-            gameOverScreen.classList.remove("active");
-            clearInterval(gameInterval);
-            startGame();
+        // Controles Táctiles (Deslizar en pantalla)
+        canvas.addEventListener("touchmove", (e) => {
+            e.preventDefault();
+            if(!gameStarted) { gameStarted = true; tapStart.style.display = 'none'; }
+            const rect = canvas.getBoundingClientRect();
+            const root = document.documentElement;
+            const touch = e.touches[0];
+            
+            // Calcular posición relativa al canvas
+            let touchX = (touch.clientX - rect.left) * (canvas.width / rect.width);
+            basket.x = touchX - basket.width / 2;
+
+            // Límites
+            if(basket.x < 0) basket.x = 0;
+            if(basket.x > canvas.width - basket.width) basket.x = canvas.width - basket.width;
+        }, { passive: false });
+
+        // Función para dibujar un corazón en Canvas
+        function drawHeart(x, y, size, color) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.translate(x, y);
+            ctx.moveTo(0, -size / 4);
+            ctx.bezierCurveTo(size / 2, -size, size, -size / 3, 0, size);
+            ctx.bezierCurveTo(-size, -size / 3, -size / 2, -size, 0, -size / 4);
+            ctx.fillStyle = color;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = color;
+            ctx.fill();
+            ctx.restore();
         }
 
-        // Arrancar por primera vez
-        generateFood();
-        startGame();
+        // Crear partículas cuando atrapas un corazón
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    radius: Math.random() * 3 + 1,
+                    alpha: 1,
+                    color: color
+                });
+            }
+        }
+
+        // Bucle Principal
+        function update() {
+            if (gameOver) return;
+
+            // Limpiar pantalla con un leve rastro para efecto de movimiento lento
+            ctx.fillStyle = "rgba(11, 9, 20, 0.3)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (gameStarted) {
+                // Mover canasta (Teclado)
+                if (rightPressed && basket.x < canvas.width - basket.width) basket.x += basket.speed;
+                if (leftPressed && basket.x > 0) basket.x -= basket.speed;
+
+                // Generar corazones
+                heartSpawnTimer++;
+                if (heartSpawnTimer > Math.max(25, 45 - score/4)) { 
+                    hearts.push({
+                        x: Math.random() * (canvas.width - 30) + 15,
+                        y: -20,
+                        size: Math.random() * 6 + 12,
+                        speed: (Math.random() * 2 + 3) * speedMultiplier,
+                        color: Math.random() > 0.2 ? "#ff416c" : "#ff4b2b"
+                    });
+                    heartSpawnTimer = 0;
+                }
+            }
+
+            // Dibujar Canasta (Estilo cápsula neón)
+            ctx.fillStyle = basket.color;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = basket.color;
+            ctx.beginPath();
+            ctx.roundRect(basket.x, basket.y, basket.width, basket.height, 7);
+            ctx.fill();
+            ctx.shadowBlur = 0; // Reset
+
+            // Manejar Corazones
+            for (let i = hearts.length - 1; i >= 0; i--) {
+                let h = hearts[i];
+                if (gameStarted) h.y += h.speed;
+
+                drawHeart(h.x, h.y, h.size, h.color);
+
+                // Colisión con la Canasta
+                if (h.y + h.size >= basket.y && h.y <= basket.y + basket.height &&
+                    h.x + h.size/2 >= basket.x && h.x - h.size/2 <= basket.x + basket.width) {
+                    
+                    createParticles(h.x, h.y, h.color);
+                    hearts.splice(i, 1);
+                    score += 5;
+                    scoreElem.textContent = score;
+
+                    // Cambiar frases dinámicamente cada 20 puntos
+                    if (phrases[score]) {
+                        phraseBox.style.transform = "scale(1.05)";
+                        phraseBox.textContent = phrases[score];
+                        setTimeout(() => phraseBox.style.transform = "scale(1)", 300);
+                    }
+
+                    // Aumentar dificultad sutilmente
+                    if (score % 25 === 0) speedMultiplier += 0.12;
+
+                    // Condición de Victoria
+                    if (score >= 100) {
+                        gameOver = true;
+                        winScreen.classList.add("active");
+                    }
+                    continue;
+                }
+
+                // Si cae al suelo
+                if (h.y > canvas.height + 20) {
+                    hearts.splice(i, 1);
+                    if (gameStarted) {
+                        lives--;
+                        livesElem.textContent = "❤️".repeat(lives) + "🖤".repeat(3 - lives);
+                    }
+
+                    if (lives <= 0) {
+                        gameOver = true;
+                        document.getElementById("game-over-text").textContent = gameOverTexts[Math.floor(Math.random() * gameOverTexts.length)];
+                        gameOverScreen.classList.add("active");
+                    }
+                }
+            }
+
+            // Dibujar Partículas
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.03;
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                } else {
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        function resetGame() {
+            score = 0;
+            lives = 3;
+            speedMultiplier = 1;
+            hearts = [];
+            particles = [];
+            gameOver = false;
+            gameStarted = false;
+            basket.x = 160;
+            scoreElem.textContent = score;
+            livesElem.textContent = "❤️❤️❤️";
+            phraseBox.textContent = "¡A ver si esta vez sí los atrapas todos! 😏";
+            tapStart.style.display = 'block';
+            gameOverScreen.classList.remove("active");
+            winScreen.classList.remove("active");
+        }
+
+        function aceptarPremio() {
+            alert("¡Tomale screenshot y mándamelo ya! Te ganaste la salida oficial. 👑❤️");
+        }
+
+        // Iniciar loop gráfico
+        requestAnimationFrame(update);
     </script>
 </body>
 </html>
