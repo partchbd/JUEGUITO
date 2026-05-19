@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para ti ✨</title>
+    <title>Nuestras Semanas ✨</title>
     <style>
         * {
             box-sizing: border-box;
@@ -12,221 +12,255 @@
         }
 
         body {
-            background: #0d0b14;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #0a0813;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             min-height: 100vh;
-            padding: 20px;
-        }
-
-        .card-container {
-            max-width: 400px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 30px 24px;
-            text-align: center;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        .header h1 {
-            font-size: 1.6rem;
-            font-weight: 600;
-            letter-spacing: -0.5px;
-            color: #f3f3f6;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            font-size: 0.95rem;
-            color: #8a8994;
-            margin-bottom: 30px;
-        }
-
-        /* Lista de "Notas" interactivas */
-        .notes-list {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            margin-bottom: 10px;
-        }
-
-        .note-item {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 16px;
-            border-radius: 16px;
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            align-items: center;
+            padding: 40px 20px;
+            overflow-x: hidden;
             position: relative;
+        }
+
+        /* Animación de fondo sutil */
+        .bg-glow {
+            position: absolute;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 117, 151, 0.08) 0%, rgba(0,0,0,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #f3f3f6;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #8a8994;
+        }
+
+        /* Contenedor de las Semanas */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .week-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
             overflow: hidden;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .note-item:hover {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: rgba(255, 117, 151, 0.3);
+        .week-card:hover {
+            border-color: rgba(255, 117, 151, 0.2);
+            box-shadow: 0 10px 25px rgba(255, 117, 151, 0.03);
         }
 
-        .note-title {
-            font-size: 1rem;
-            font-weight: 500;
-            color: #ff7597;
+        /* Encabezado de la tarjeta (lo que se toca) */
+        .week-header {
+            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
+            user-select: none;
         }
 
-        .note-title::after {
-            content: '→';
+        .week-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .week-number {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #ff7597;
+            font-weight: 700;
+        }
+
+        .week-date {
             font-size: 1.1rem;
-            color: #636269;
-            transition: transform 0.3s;
+            font-weight: 600;
+            color: #e4e4ed;
         }
 
-        .note-item.active .note-title::after {
-            transform: rotate(90deg);
+        .arrow-icon {
+            font-size: 1.2rem;
+            color: #636269;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Contenido oculto */
+        .week-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .content-inner {
+            padding: 0 20px 20px 20px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #b5b4bc;
+        }
+
+        .week-card.active .week-content {
+            max-height: 500px; /* Suficiente espacio para el texto */
+        }
+
+        .week-card.active .arrow-icon {
+            transform: rotate(180deg);
             color: #ff7597;
         }
 
-        .note-content {
-            max-height: 0;
-            overflow: hidden;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            color: #b5b4bc;
-            transition: max-height 0.3s ease, margin-top 0.3s ease;
-        }
-
-        .note-item.active .note-content {
-            max-height: 150px; /* Ajustar según largo del texto */
+        /* Bloque de momentos divertidos dentro de la semana */
+        .fun-fact {
             margin-top: 12px;
+            padding: 10px 14px;
+            background: rgba(255, 117, 151, 0.06);
+            border-left: 3px solid #ff7597;
+            border-radius: 4px 12px 12px 4px;
+            font-size: 0.9rem;
+            color: #ffe6eb;
         }
 
-        /* Propuesta Final */
-        #proposal {
-            display: none;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            animation: fadeIn 0.6s ease forwards;
+        /* Elementos flotantes animados de fondo */
+        .floating-emoji {
+            position: absolute;
+            font-size: 1.5rem;
+            bottom: -50px;
+            opacity: 0;
+            pointer-events: none;
+            animation: floatUp 6s linear infinite;
+            z-index: 1;
         }
 
-        #proposal p {
-            font-size: 1rem;
-            color: #f3f3f6;
-            margin-bottom: 18px;
-            font-weight: 500;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .btn {
-            background: #ff7597;
-            color: #ffffff;
-            border: none;
-            padding: 12px 24px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            border-radius: 14px;
-            cursor: pointer;
-            flex: 1;
-            transition: transform 0.1s, background 0.2s;
-        }
-
-        .btn:active {
-            transform: scale(0.97);
-        }
-
-        .btn-alt {
-            background: rgba(255, 255, 255, 0.08);
-            color: #f3f3f6;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.4; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <div class="card-container">
-        <div class="header">
-            <h1>Un par de cosas claras... 😉</h1>
-            <p>Sé que no eres de jueguitos, así que te armé esto rápido.</p>
-        </div>
+    <div class="bg-glow"></div>
 
-        <div class="notes-list">
-            <!-- Nota 1 -->
-            <div class="note-item" onclick="toggleNote(this)">
-                <div class="note-title">Sobre el volver a hablar...</div>
-                <div class="note-content">
-                    Dejando atrás los problemas del pasado, me da mucha tranquilidad ver que podemos conectar otra vez. Me gusta mucho cómo fluyen las cosas contigo ahora.
+    <div class="container">
+        <header>
+            <h1>Nuestra Bitácora ✨</h1>
+            <p>Un espacio para no olvidar cómo la pasamos de vuelta.</p>
+        </header>
+
+        <div class="timeline">
+
+            <!-- ================= SEMANA 1 ================= -->
+            <div class="week-card" onclick="toggleWeek(this)">
+                <div class="week-header">
+                    <div class="week-title">
+                        <span class="week-number">Semana 01</span>
+                        <span class="week-date">El reencuentro</span>
+                    </div>
+                    <div class="arrow-icon">▼</div>
+                </div>
+                <div class="week-content">
+                    <div class="content-inner">
+                        Al principio no sabía qué iba a pasar al volver a hablar, pero que las cosas fluyeran tan rápido me tomó por sorpresa. Me dio un buen de gusto notar que la complicidad sigue ahí, intacta, como si no hubiera pasado el tiempo.
+                        <div class="fun-fact">
+                            <strong>Momento cagado:</strong> Cuando nos dio pena el primer "hola" de la conversación y tardamos horas en contestar jajaja. 😂
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Nota 2 -->
-            <div class="note-item" onclick="toggleNote(this)">
-                <div class="note-title">Lo que pasa por mi cabeza</div>
-                <div class="note-content">
-                    Para qué dar tantas vueltas si ya nos conocemos: me sigues gustando un buen, y este plan "romántico" en el que estamos me encanta.
+            <!-- ================= SEMANA 2 ================= -->
+            <div class="week-card" onclick="toggleWeek(this)">
+                <div class="week-header">
+                    <div class="week-title">
+                        <span class="week-number">Semana 02</span>
+                        <span class="week-date">Subiendo el nivel</span>
+                    </div>
+                    <div class="arrow-icon">▼</div>
+                </div>
+                <div class="week-content">
+                    <div class="content-inner">
+                        Esta semana ya se sintió más en confianza. Ya volvieron las risas de siempre, los audios largos y las indirectas medio directas. Me gusta mucho este ritmo que llevamos, se siente natural y sin presiones.
+                        <div class="fun-fact">
+                            <strong>Frase de la semana:</strong> "Ya te extrañaba tantito" (aunque te hagas la ruda). 😏
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Nota 3 -->
-            <div class="note-item" onclick="toggleNote(this, true)">
-                <div class="note-title">La verdadera razón de esto</div>
-                <div class="note-content">
-                    Programé este detalle sólo para sacarte una sonrisa y decirte algo de frente, sin rodeos. Despliega lo que sigue abajo...
-                </div>
-            </div>
-        </div>
+            <!-- Aquí puedes clonar el bloque de arriba para la Semana 3 cuando toque -->
 
-        <!-- Bloque final que aparece al abrir la última nota -->
-        <div id="proposal">
-            <p>¿Qué dices si dejamos las pantallas un rato y nos vemos para platicar en persona? Decídete: 😏</p>
-            <div class="btn-group">
-                <button class="btn" onclick="responder('Sí, de una')">Sí, de una</button>
-                <button class="btn btn-alt" onclick="responder('Obvio sí')">Obvio sí</button>
-            </div>
         </div>
     </div>
 
     <script>
-        let note3Opened = false;
+        // Función para abrir y cerrar las semanas con suavidad
+        function toggleWeek(card) {
+            // Si quieres que solo haya una abierta a la vez, descomenta las siguientes 3 líneas:
+            // const allCards = document.querySelectorAll('.week-card');
+            // allCards.forEach(c => { if(c !== card) c.classList.remove('active'); });
 
-        function toggleNote(element, isLast = false) {
-            // Cerrar las otras notas para que se vea limpio tipo acordeón
-            const items = document.querySelectorAll('.note-item');
-            items.forEach(item => {
-                if (item !== element) item.classList.remove('active');
-            });
-
-            // Alternar la actual
-            element.classList.toggle('active');
-
-            // Si abre la última nota, desbloquea la propuesta
-            if (isLast && element.classList.contains('active')) {
-                note3Opened = true;
-                setTimeout(() => {
-                    document.getElementById('proposal').style.display = 'block';
-                }, 300);
-            }
+            card.classList.toggle('active');
         }
 
-        function responder(opcion) {
-            alert("Perfecto, tómale captura a esto y cerramos la fecha por chat. Te toca poner el día. 📅✨");
+        // Generador de animaciones flotantes en el fondo (corazones, destellos, caritas)
+        const emojis = ['✨', '🎈', '💭', '🎵', '💫'];
+        
+        function createFloatingEmoji() {
+            const emoji = document.createElement('div');
+            emoji.classList.add('floating-emoji');
+            emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            // Posición X aleatoria
+            emoji.style.left = Math.random() * 100 + 'vw';
+            // Tamaño aleatorio sutil
+            emoji.style.fontSize = (Math.random() * 1 + 1) + 'rem';
+            // Duración de animación aleatoria para que no vayan todos al mismo tiempo
+            emoji.style.animationDuration = (Math.random() * 4 + 5) + 's';
+            
+            document.body.appendChild(emoji);
+            
+            // Borrar después de que termine la animación para no saturar la memoria
+            setTimeout(() => {
+                emoji.remove();
+            }, 9000);
         }
+
+        // Crear un emoji cada 1.5 segundos
+        setInterval(createFloatingEmoji, 1500);
     </script>
 </body>
 </html>
