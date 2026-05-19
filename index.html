@@ -2,441 +2,231 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
-    <title>Catch My Heart ❤️</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para ti ✨</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
         }
 
         body {
-            background: #0b0914;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #0d0b14;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             color: #ffffff;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            overflow: hidden;
+            padding: 20px;
         }
 
-        #game-container {
-            position: relative;
-            width: 100%;
+        .card-container {
             max-width: 400px;
-            height: 600px;
-            background: radial-gradient(circle at center, #1a153a 0%, #0b0914 100%);
-            border: 3px solid #ff416c;
-            border-radius: 20px;
-            box-shadow: 0 0 30px rgba(255, 65, 108, 0.3);
-            overflow: hidden;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 30px 24px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            color: #f3f3f6;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            color: #8a8994;
+            margin-bottom: 30px;
+        }
+
+        /* Lista de "Notas" interactivas */
+        .notes-list {
             display: flex;
             flex-direction: column;
+            gap: 14px;
+            margin-bottom: 10px;
         }
 
-        /* Marcador y textos */
-        #hud {
+        .note-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-item:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(255, 117, 151, 0.3);
+        }
+
+        .note-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #ff7597;
             display: flex;
             justify-content: space-between;
-            padding: 15px 20px;
-            font-weight: bold;
+            align-items: center;
+        }
+
+        .note-title::after {
+            content: '→';
             font-size: 1.1rem;
-            z-index: 10;
-            background: rgba(11, 9, 20, 0.6);
-            backdrop-filter: blur(5px);
-            border-bottom: 1px solid rgba(255, 65, 108, 0.2);
+            color: #636269;
+            transition: transform 0.3s;
         }
 
-        #score { color: #ff416c; text-shadow: 0 0 8px rgba(255, 65, 108, 0.5); }
-        #lives { color: #ff4b2b; }
+        .note-item.active .note-title::after {
+            transform: rotate(90deg);
+            color: #ff7597;
+        }
 
-        #phrase-box {
-            position: absolute;
-            top: 75px;
-            left: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 10px 15px;
-            border-radius: 12px;
-            text-align: center;
+        .note-content {
+            max-height: 0;
+            overflow: hidden;
             font-size: 0.95rem;
-            font-style: italic;
-            color: #ffdeeb;
-            min-height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            transition: all 0.3s ease;
-        }
-
-        canvas {
-            flex-grow: 1;
-            display: block;
-            background: transparent;
-        }
-
-        /* Pantallas superpuestas (Game Over / Victoria) */
-        .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(11, 9, 20, 0.92);
-            backdrop-filter: blur(8px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
-            text-align: center;
-            z-index: 20;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-        }
-
-        .screen.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .screen h2 {
-            font-size: 2rem;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        #game-over-title { color: #ff4b2b; text-shadow: 0 0 10px rgba(255, 75, 43, 0.4); }
-        #win-title { color: #8e2de2; text-shadow: 0 0 15px rgba(142, 45, 226, 0.6); }
-
-        .screen p {
-            font-size: 1.05rem;
             line-height: 1.5;
-            margin-bottom: 25px;
-            color: #d1cde3;
+            color: #b5b4bc;
+            transition: max-height 0.3s ease, margin-top 0.3s ease;
+        }
+
+        .note-item.active .note-content {
+            max-height: 150px; /* Ajustar según largo del texto */
+            margin-top: 12px;
+        }
+
+        /* Propuesta Final */
+        #proposal {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        #proposal p {
+            font-size: 1rem;
+            color: #f3f3f6;
+            margin-bottom: 18px;
+            font-weight: 500;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
         }
 
         .btn {
-            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
-            color: white;
+            background: #ff7597;
+            color: #ffffff;
             border: none;
-            padding: 12px 28px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 25px;
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 14px;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
+            flex: 1;
+            transition: transform 0.1s, background 0.2s;
         }
 
         .btn:active {
-            transform: scale(0.95);
+            transform: scale(0.97);
         }
 
-        .btn-win {
-            background: linear-gradient(135deg, #4a00e0 0%, #8e2de2 100%);
-            box-shadow: 0 5px 15px rgba(142, 45, 226, 0.4);
+        .btn-alt {
+            background: rgba(255, 255, 255, 0.08);
+            color: #f3f3f6;
         }
 
-        /* Instrucciones iniciales flotantes */
-        #tap-start {
-            position: absolute;
-            bottom: 150px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            color: rgba(255,255,255,0.4);
-            font-size: 0.9rem;
-            animation: pulse 1.5s infinite;
-            pointer-events: none;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    http://googleusercontent.com/image_generation_content/0
-
-    <div id="game-container">
-        <div id="hud">
-            <div>Puntos: <span id="score">0</span>/100</div>
-            <div>Vidas: <span id="lives">❤️❤️❤️</span></div>
+    <div class="card-container">
+        <div class="header">
+            <h1>Un par de cosas claras... 😉</h1>
+            <p>Sé que no eres de jueguitos, así que te armé esto rápido.</p>
         </div>
 
-        <div id="phrase-box">¡Atrapa los corazones antes de que caigan! 🚀</div>
-        
-        <div id="tap-start">Desliza o usa las flechas para moverte</div>
-        <canvas id="gameCanvas"></canvas>
+        <div class="notes-list">
+            <!-- Nota 1 -->
+            <div class="note-item" onclick="toggleNote(this)">
+                <div class="note-title">Sobre el volver a hablar...</div>
+                <div class="note-content">
+                    Dejando atrás los problemas del pasado, me da mucha tranquilidad ver que podemos conectar otra vez. Me gusta mucho cómo fluyen las cosas contigo ahora.
+                </div>
+            </div>
 
-        <div class="screen" id="game-over-screen">
-            <h2 id="game-over-title">¿Se te cayó mi corazón? 💔</h2>
-            <p id="game-over-text">Menos mal que en la vida real soy más terco/a que el juego. ¡Anda, inténtalo otra vez!</p>
-            <button class="btn" onclick="resetGame()">Recoger mi corazón 🩹</button>
+            <!-- Nota 2 -->
+            <div class="note-item" onclick="toggleNote(this)">
+                <div class="note-title">Lo que pasa por mi cabeza</div>
+                <div class="note-content">
+                    Para qué dar tantas vueltas si ya nos conocemos: me sigues gustando un buen, y este plan "romántico" en el que estamos me encanta.
+                </div>
+            </div>
+
+            <!-- Nota 3 -->
+            <div class="note-item" onclick="toggleNote(this, true)">
+                <div class="note-title">La verdadera razón de esto</div>
+                <div class="note-content">
+                    Programé este detalle sólo para sacarte una sonrisa y decirte algo de frente, sin rodeos. Despliega lo que sigue abajo...
+                </div>
+            </div>
         </div>
 
-        <div class="screen" id="win-screen">
-            <h2 id="win-title">¡Nivel Completado! 🏆</h2>
-            <p>Atrapaste todos mis corazones... Bueno, la verdad es que ya los tenías desde antes de empezar a jugar. 😏<br><br>¿Qué dices si festejamos tu victoria saliendo por un helado o tomando algo?</p>
-            <button class="btn btn-win" onclick="aceptarPremio()">Reclamar Premio ❤️</button>
+        <!-- Bloque final que aparece al abrir la última nota -->
+        <div id="proposal">
+            <p>¿Qué dices si dejamos las pantallas un rato y nos vemos para platicar en persona? Decídete: 😏</p>
+            <div class="btn-group">
+                <button class="btn" onclick="responder('Sí, de una')">Sí, de una</button>
+                <button class="btn btn-alt" onclick="responder('Obvio sí')">Obvio sí</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const scoreElem = document.getElementById("score");
-        const livesElem = document.getElementById("lives");
-        const phraseBox = document.getElementById("phrase-box");
-        const gameOverScreen = document.getElementById("game-over-screen");
-        const winScreen = document.getElementById("win-screen");
-        const tapStart = document.getElementById("tap-start");
+        let note3Opened = false;
 
-        // Ajustar tamaño del canvas internamente
-        canvas.width = 400;
-        canvas.height = 500;
+        function toggleNote(element, isLast = false) {
+            // Cerrar las otras notas para que se vea limpio tipo acordeón
+            const items = document.querySelectorAll('.note-item');
+            items.forEach(item => {
+                if (item !== element) item.classList.remove('active');
+            });
 
-        // Variables del juego
-        let score = 0;
-        let lives = 3;
-        let gameOver = false;
-        let gameStarted = false;
-        let hearts = [];
-        let particles = [];
-        let heartSpawnTimer = 0;
-        let speedMultiplier = 1;
+            // Alternar la actual
+            element.classList.toggle('active');
 
-        // La barra / canasta del jugador
-        const basket = {
-            x: 160,
-            y: 440,
-            width: 80,
-            height: 15,
-            speed: 7,
-            color: "#ff416c"
-        };
-
-        // Lista de frases según vas sumando puntos
-        const phrases = {
-            0: "¡Qué reflejos! A ver si aguantas el ritmo... 😏",
-            20: "Cuidado, que si se te caen me duele a mí también. 😜",
-            40: "Oye... hablando en serio, qué lindo es volver a platicar contigo.",
-            60: "Me gustas más que romper el récord de este juego, ¿sabías?",
-            80: "¡Ya casi! Estás a nada de ganarte el premio mayor... 🚀"
-        };
-
-        const gameOverTexts = [
-            "Menos mal que en la vida real soy más terco/a que el juego. ¡Anda, inténtalo otra vez!",
-            "Casi, casi... Pero no te voy a dejar ir tan fácil. ¡A jugar de nuevo!",
-            "¿Te pusiste nervioso/a leyendo las frases? ¡Va otra oportunidad!"
-        ];
-
-        // Controles de teclado
-        let rightPressed = false;
-        let leftPressed = false;
-
-        document.addEventListener("keydown", (e) => {
-            if(e.key === "ArrowRight" || e.key === "d") rightPressed = true;
-            if(e.key === "ArrowLeft" || e.key === "a") leftPressed = true;
-            if(!gameStarted) { gameStarted = true; tapStart.style.display = 'none'; }
-        });
-
-        document.addEventListener("keyup", (e) => {
-            if(e.key === "ArrowRight" || e.key === "d") rightPressed = false;
-            if(e.key === "ArrowLeft" || e.key === "a") leftPressed = false;
-        });
-
-        // Controles Táctiles (Deslizar en pantalla)
-        canvas.addEventListener("touchmove", (e) => {
-            e.preventDefault();
-            if(!gameStarted) { gameStarted = true; tapStart.style.display = 'none'; }
-            const rect = canvas.getBoundingClientRect();
-            const root = document.documentElement;
-            const touch = e.touches[0];
-            
-            // Calcular posición relativa al canvas
-            let touchX = (touch.clientX - rect.left) * (canvas.width / rect.width);
-            basket.x = touchX - basket.width / 2;
-
-            // Límites
-            if(basket.x < 0) basket.x = 0;
-            if(basket.x > canvas.width - basket.width) basket.x = canvas.width - basket.width;
-        }, { passive: false });
-
-        // Función para dibujar un corazón en Canvas
-        function drawHeart(x, y, size, color) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.translate(x, y);
-            ctx.moveTo(0, -size / 4);
-            ctx.bezierCurveTo(size / 2, -size, size, -size / 3, 0, size);
-            ctx.bezierCurveTo(-size, -size / 3, -size / 2, -size, 0, -size / 4);
-            ctx.fillStyle = color;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = color;
-            ctx.fill();
-            ctx.restore();
-        }
-
-        // Crear partículas cuando atrapas un corazón
-        function createParticles(x, y, color) {
-            for (let i = 0; i < 8; i++) {
-                particles.push({
-                    x: x,
-                    y: y,
-                    vx: (Math.random() - 0.5) * 6,
-                    vy: (Math.random() - 0.5) * 6,
-                    radius: Math.random() * 3 + 1,
-                    alpha: 1,
-                    color: color
-                });
+            // Si abre la última nota, desbloquea la propuesta
+            if (isLast && element.classList.contains('active')) {
+                note3Opened = true;
+                setTimeout(() => {
+                    document.getElementById('proposal').style.display = 'block';
+                }, 300);
             }
         }
 
-        // Bucle Principal
-        function update() {
-            if (gameOver) return;
-
-            // Limpiar pantalla con un leve rastro para efecto de movimiento lento
-            ctx.fillStyle = "rgba(11, 9, 20, 0.3)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            if (gameStarted) {
-                // Mover canasta (Teclado)
-                if (rightPressed && basket.x < canvas.width - basket.width) basket.x += basket.speed;
-                if (leftPressed && basket.x > 0) basket.x -= basket.speed;
-
-                // Generar corazones
-                heartSpawnTimer++;
-                if (heartSpawnTimer > Math.max(25, 45 - score/4)) { 
-                    hearts.push({
-                        x: Math.random() * (canvas.width - 30) + 15,
-                        y: -20,
-                        size: Math.random() * 6 + 12,
-                        speed: (Math.random() * 2 + 3) * speedMultiplier,
-                        color: Math.random() > 0.2 ? "#ff416c" : "#ff4b2b"
-                    });
-                    heartSpawnTimer = 0;
-                }
-            }
-
-            // Dibujar Canasta (Estilo cápsula neón)
-            ctx.fillStyle = basket.color;
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = basket.color;
-            ctx.beginPath();
-            ctx.roundRect(basket.x, basket.y, basket.width, basket.height, 7);
-            ctx.fill();
-            ctx.shadowBlur = 0; // Reset
-
-            // Manejar Corazones
-            for (let i = hearts.length - 1; i >= 0; i--) {
-                let h = hearts[i];
-                if (gameStarted) h.y += h.speed;
-
-                drawHeart(h.x, h.y, h.size, h.color);
-
-                // Colisión con la Canasta
-                if (h.y + h.size >= basket.y && h.y <= basket.y + basket.height &&
-                    h.x + h.size/2 >= basket.x && h.x - h.size/2 <= basket.x + basket.width) {
-                    
-                    createParticles(h.x, h.y, h.color);
-                    hearts.splice(i, 1);
-                    score += 5;
-                    scoreElem.textContent = score;
-
-                    // Cambiar frases dinámicamente cada 20 puntos
-                    if (phrases[score]) {
-                        phraseBox.style.transform = "scale(1.05)";
-                        phraseBox.textContent = phrases[score];
-                        setTimeout(() => phraseBox.style.transform = "scale(1)", 300);
-                    }
-
-                    // Aumentar dificultad sutilmente
-                    if (score % 25 === 0) speedMultiplier += 0.12;
-
-                    // Condición de Victoria
-                    if (score >= 100) {
-                        gameOver = true;
-                        winScreen.classList.add("active");
-                    }
-                    continue;
-                }
-
-                // Si cae al suelo
-                if (h.y > canvas.height + 20) {
-                    hearts.splice(i, 1);
-                    if (gameStarted) {
-                        lives--;
-                        livesElem.textContent = "❤️".repeat(lives) + "🖤".repeat(3 - lives);
-                    }
-
-                    if (lives <= 0) {
-                        gameOver = true;
-                        document.getElementById("game-over-text").textContent = gameOverTexts[Math.floor(Math.random() * gameOverTexts.length)];
-                        gameOverScreen.classList.add("active");
-                    }
-                }
-            }
-
-            // Dibujar Partículas
-            for (let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.alpha -= 0.03;
-                if (p.alpha <= 0) {
-                    particles.splice(i, 1);
-                } else {
-                    ctx.save();
-                    ctx.globalAlpha = p.alpha;
-                    ctx.fillStyle = p.color;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.restore();
-                }
-            }
-
-            requestAnimationFrame(update);
+        function responder(opcion) {
+            alert("Perfecto, tómale captura a esto y cerramos la fecha por chat. Te toca poner el día. 📅✨");
         }
-
-        function resetGame() {
-            score = 0;
-            lives = 3;
-            speedMultiplier = 1;
-            hearts = [];
-            particles = [];
-            gameOver = false;
-            gameStarted = false;
-            basket.x = 160;
-            scoreElem.textContent = score;
-            livesElem.textContent = "❤️❤️❤️";
-            phraseBox.textContent = "¡A ver si esta vez sí los atrapas todos! 😏";
-            tapStart.style.display = 'block';
-            gameOverScreen.classList.remove("active");
-            winScreen.classList.remove("active");
-        }
-
-        function aceptarPremio() {
-            alert("¡Tomale screenshot y mándamelo ya! Te ganaste la salida oficial. 👑❤️");
-        }
-
-        // Iniciar loop gráfico
-        requestAnimationFrame(update);
     </script>
 </body>
 </html>
