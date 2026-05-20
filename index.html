@@ -12,7 +12,6 @@
         }
 
         body {
-            /* Se cambia el degradado por tu GIF de gatitos para el inicio */
             background-image: url('amor9.jpg');
             background-size: cover;
             background-position: center;
@@ -113,6 +112,18 @@
             transform: translateY(-2px);
         }
 
+        .btn-rustic {
+            background: #5a4132;
+            color: #f5efe6;
+            border: 1px solid #7c5a44;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .btn-rustic:hover {
+            background: #443025;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
         /* --- ENCUADRE DE LOS GIFS --- */
         .gif-frame {
             width: 100%;
@@ -137,7 +148,6 @@
             padding: 40px 20px;
         }
 
-        /* HOJA CON MARGEN SEPIA RÚSTICO COHERENTE CON EL PAPEL CAFÉ */
         .paper-sheet {
             background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)), url('hoja.jpg');
             background-size: cover;
@@ -146,13 +156,10 @@
             max-width: 620px;
             padding: 60px 50px;
             border-radius: 4px;
-
-            /* Bordes rústicos en tonos café oscuro y sepia */
             border: 3px solid #5a4132;
             outline: 1px solid #7c5a44;
             outline-offset: -12px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-            
             animation: openPaper 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards, vintageGlow 5s ease-in-out infinite;
             opacity: 0;
             transform: scale(0.9) translateY(30px);
@@ -183,7 +190,6 @@
             display: block;
         }
 
-        /* --- ANIMACIONES --- */
         @keyframes openPaper {
             to {
                 opacity: 1;
@@ -202,7 +208,7 @@
 <body>
 
     <div class="romantic-card" id="mainCard">
-        </div>
+    </div>
 
     <div id="paper-screen">
         <div class="paper-sheet">
@@ -246,6 +252,10 @@
                     me haces feliz con solo tu presencia,<br>
                     y esa es la única verdad que yo sé hablar.
                 </span>
+                
+                <div class="btn-container" style="margin-top: 40px;">
+                    <button class="btn btn-normal btn-rustic" onclick="regresarDeLaCarta()">Fin ❤️</button>
+                </div>
             </div>
         </div>
     </div>
@@ -254,17 +264,47 @@
         const card = document.getElementById('mainCard');
         const paperScreen = document.getElementById('paper-screen');
         let badgeMessage = "Hola, quería decirte algo";
+        
+        let intentosNo = 0;
 
         const vistas = {
-            preguntaInicial: () => `
-                ${badgeMessage ? `<span class="status-badge">${badgeMessage}</span>` : ''}
-                <h2>Tengo algo especial para ti...</h2>
-                <p>Pero primero quería quitarme una duda, ¿tú me quieres un poquito?</p>
-                <div class="btn-container">
-                    <button class="btn btn-normal btn-pink" onclick="irAIntroduccion()">Sí, claro</button>
-                    <button class="btn btn-normal btn-gray" onclick="irAConfirmacion()">No</button>
-                </div>
-            `,
+            preguntaInicial: () => {
+                // TERCER REGRESO (Despúes de perrillo.gif): Se quita por completo la opción "No"
+                if (intentosNo >= 2) {
+                    return `
+                        <span class="status-badge" style="color:#b7791f; background:rgba(214,158,46,0.15)">Última oportunidad</span>
+                        <h2>Me quieres?</h2>
+                        <p>jejeje.</p>
+                        <div class="btn-container">
+                            <button class="btn btn-destacado btn-pink" onclick="irAIntroduccion()">Sí,si ❤️</button>
+                        </div>
+                    `;
+                }
+                
+                // SEGUNDO REGRESO (Después de sad.gif): Le reclama que juegue
+                if (intentosNo === 1) {
+                    return `
+                        <span class="status-badge" style="color:#6b46c1; background:rgba(107,70,193,0.1)">aaaaaa pepep...</span>
+                        <h2>Que chistosa perooo..</h2>
+                        <p>pipi ¿sí me quieres un poquito?</p>
+                        <div class="btn-container">
+                            <button class="btn btn-normal btn-pink" onclick="irAIntroduccion()">Sipi</button>
+                            <button class="btn btn-normal btn-gray" onclick="irAConfirmacion()">No, soy nub</button>
+                        </div>
+                    `;
+                }
+                
+                // PRIMER INTENTO: Interfaz por defecto al cargar la página
+                return `
+                    <span class="status-badge">${badgeMessage}</span>
+                    <h2>Tengo algo para ti...</h2>
+                    <p>Pero primero quería quitarme una duda, ¿tú me quieres un poquito?</p>
+                    <div class="btn-container">
+                        <button class="btn btn-normal btn-pink" onclick="irAIntroduccion()">Sipirili</button>
+                        <button class="btn btn-normal btn-gray" onclick="irAConfirmacion()">No</button>
+                    </div>
+                `;
+            },
             
             confirmacionNo: () => `
                 <span class="status-badge" style="color:#e53e3e; background:rgba(229,62,62,0.1)">Espera...</span>
@@ -272,7 +312,7 @@
                 <p>Piénsatelo bien antes de tomar una decisión...</p>
                 <div class="btn-container">
                     <button class="btn btn-destacado btn-pink" onclick="regresarAlInicio()">No, regresar</button>
-                    <button class="btn btn-chico btn-gray" onclick="irAlGif()">Sí, segura</button>
+                    <button class="btn btn-chico btn-gray" onclick="irAlGif()">Sí, segurisima</button>
                 </div>
             `,
 
@@ -292,13 +332,31 @@
                 </div>
             `,
 
-            pantallaGif: () => `
-                <div class="gif-frame">
-                    <img src="sad.gif" alt="Sad Moment">
-                </div>
-                <h2 style="color: #e53e3e;">Ay...</h2>
-                <p>No me digas eso, por favor.</p>
-            `
+            pantallaGif: () => {
+                if (intentosNo === 1) {
+                    return `
+                        <div class="gif-frame">
+                            <img src="sad.gif" alt="Sad Moment">
+                        </div>
+                        <h2 style="color: #e53e3e;">Ay...</h2>
+                        <p>No me digas eso, por favor.</p>
+                        <div class="btn-container">
+                            <button class="btn btn-normal btn-pink" onclick="reiniciarTodo()">Volver a intentar</button>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="gif-frame">
+                            <img src="perrillo.gif" alt="Perrillo Moment">
+                        </div>
+                        <h2 style="color: #e53e3e;">¿Otra vez? 🥺</h2>
+                        <p>Ya vas varias veces que me dices que no...hmmmmmmm</p>
+                        <div class="btn-container">
+                            <button class="btn btn-normal btn-pink" onclick="reiniciarTodo()">Volver a intentar</button>
+                        </div>
+                    `;
+                }
+            }
         };
 
         function render(vistaHtml) {
@@ -310,6 +368,7 @@
         }
 
         function irAIntroduccion() {
+            intentosNo = 0; 
             render(vistas.introduccionPoema());
         }
 
@@ -319,7 +378,12 @@
         }
 
         function irAlGif() {
+            intentosNo++; 
             render(vistas.pantallaGif());
+        }
+
+        function reiniciarTodo() {
+            render(vistas.preguntaInicial());
         }
 
         function abrirHojaPoema() {
@@ -329,13 +393,38 @@
             
             setTimeout(() => {
                 card.style.display = "none";
-                // Al abrir el poema, cambiamos el fondo de gatitos al fondo liso para no interferir con la carta
                 document.body.style.backgroundImage = "none";
                 document.body.style.backgroundColor = "#e8d8c8";
                 document.body.style.background = "linear-gradient(135deg, #f5efe6 0%, #e8d8c8 100%)";
                 document.body.style.overflowY = "auto";
                 paperScreen.style.display = "flex";
                 window.scrollTo(0, 0);
+            }, 500);
+        }
+
+        function regresarDeLaCarta() {
+            paperScreen.style.transition = "all 0.5s ease";
+            paperScreen.style.opacity = "0";
+            paperScreen.style.transform = "scale(0.9)";
+
+            setTimeout(() => {
+                paperScreen.style.display = "none";
+                paperScreen.style.opacity = "1";
+                paperScreen.style.transform = "none";
+                
+                document.body.style.backgroundImage = "url('amor9.jpg')";
+                document.body.style.backgroundSize = "cover";
+                document.body.style.backgroundPosition = "center";
+                document.body.style.backgroundAttachment = "fixed";
+                document.body.style.overflowY = "hidden";
+                
+                card.style.display = "block";
+                card.style.opacity = "1";
+                card.style.transform = "none";
+                
+                intentosNo = 0; // Se resetea el ciclo completo por si quiere reiniciar la web desde el poema final
+                badgeMessage = "Gracias por leerlo completo... ❤️";
+                render(vistas.preguntaInicial());
             }, 500);
         }
 
