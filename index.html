@@ -254,7 +254,7 @@
                 </span>
                 
                 <div class="btn-container" style="margin-top: 40px;">
-                    <button class="btn btn-normal btn-rustic" onclick="regresarDeLaCarta()">Fin ❤️</button>
+                    <button class="btn btn-normal btn-rustic" onclick="regresarDeLaCarta()">Fin :3 </button>
                 </div>
             </div>
         </div>
@@ -269,7 +269,7 @@
 
         const vistas = {
             preguntaInicial: () => {
-                // TERCER REGRESO (Despúes de perrillo.gif): Se quita por completo la opción "No"
+             
                 if (intentosNo >= 2) {
                     return `
                         <span class="status-badge" style="color:#b7791f; background:rgba(214,158,46,0.15)">Última oportunidad</span>
@@ -321,8 +321,8 @@
                 <h2>Te escribí algo...</h2>
                 <p style="text-align: left; font-size: 14.5px; line-height: 1.6; margin-bottom: 20px;">
                     La verdad no sé muy bien si las palabras sean las correctas o si logré ordenarlas bien... 
-                    A veces me cuesta un poco, pero busqué una forma de expresar un cachito de todo lo que siento, 
-                    de lo mucho que te aprecio y de lo feliz que me haces. Espero que te guste.
+                    A veces me cuesta un poco, pero busqué una forma de expresar un cachito de todo lo que siento, como me haces sentir u 
+                    de lo mucho que te aprecio, Espero que te guste.
                 </p>
                 <div class="gif-frame">
                     <img src="Amor.gif" alt="Momento Romántico">
@@ -349,7 +349,7 @@
                         <div class="gif-frame">
                             <img src="perrillo.gif" alt="Perrillo Moment">
                         </div>
-                        <h2 style="color: #e53e3e;">¿Otra vez? 🥺</h2>
+                        <h2 style="color: #e53e3e;">¿como q no? D: </h2>
                         <p>Ya vas varias veces que me dices que no...hmmmmmmm</p>
                         <div class="btn-container">
                             <button class="btn btn-normal btn-pink" onclick="reiniciarTodo()">Volver a intentar</button>
@@ -422,8 +422,8 @@
                 card.style.opacity = "1";
                 card.style.transform = "none";
                 
-                intentosNo = 0; // Se resetea el ciclo completo por si quiere reiniciar la web desde el poema final
-                badgeMessage = "Gracias por leerlo completo... ❤️";
+                intentosNo = 0; 
+                badgeMessage = "Gracias por leerlo completo... ILOVEYOU";
                 render(vistas.preguntaInicial());
             }, 500);
         }
